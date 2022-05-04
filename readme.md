@@ -1,5 +1,7 @@
-### Turkiye Bedelsiz Tasit Ithalati Vergi Hesaplayicisi (TBTIVH) / Turkish Private Vehicle Import Tax Calculator (TPVITC)
+### Turkiye Bedelsiz Tasit Ithalati Vergi Hesaplayicisi (TBTIVH)
+### Turkish Private Vehicle Import Tax Calculator (TPVITC)
 Turkiye Cumhuriyeti'ne ozel arac ithal etmek icin odenmesi gereken gumruk, katma deger (KDV) ve ozel tuketim (OTV) vergilerini hesaplar.
+
 Calculates the customs, value added (VAT) and special excise taxes that must be paid to import private vehicles into the Republic of Turkey.
 
 ### Gereksinimler / Requirements
