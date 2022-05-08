@@ -149,7 +149,7 @@ def main():
     print ('Special excise tax (OTV) multiplier   : ' + str(special_excise_tax_multiplier         * 100          ) + ' %')
     print ('Special excise tax                    : ' + str(special_excise_tax                    / currency_rate) + ' ' + currency_code + ' (' + str(special_excise_tax                   ) + ' TRY)')
     print ('Price with special excise tax         : ' + str(price_with_special_excise_tax         / currency_rate) + ' ' + currency_code + ' (' + str(price_with_special_excise_tax        ) + ' TRY)')
-    print ('Value added tax (VAT) multiplier      : ' + str(value_added_tax_multiplier            * 100          ) + ' %')
+    print ('Value added tax (KDV) multiplier      : ' + str(value_added_tax_multiplier            * 100          ) + ' %')
     print ('Value added tax                       : ' + str(value_added_tax                       / currency_rate) + ' ' + currency_code + ' (' + str(value_added_tax                      ) + ' TRY)')
     print ('Final price                           : ' + str(final_price                           / currency_rate) + ' ' + currency_code + ' (' + str(final_price                          ) + ' TRY)')
     print ('Total tax to be paid                  : ' + str(total_tax                             / currency_rate) + ' ' + currency_code + ' (' + str(total_tax                            ) + ' TRY)')
