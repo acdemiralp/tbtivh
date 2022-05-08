@@ -30,6 +30,13 @@ def calculate_depreciation_multiplier      (vehicle_age):
     if vehicle_age >  6:
         return 0.2
 
+# Last validation: 05.2022
+def calculate_customs_tax_multiplier       (exemption_string):
+    if exemption_string == 'yes' or exemption_string == 'y' or exemption_string == 'True' or exemption_string == 'true':
+        return 0.0
+    else:
+        return 0.1
+
 # Reference: https://www.arabam.com/blog/genel/2022-araclarin-otv-oranlari/
 # Last validation: 05.2022
 def calculate_special_excise_tax_multiplier(vehicle_type, fuel_type, engine_size, engine_power, price_in_lira):
@@ -99,33 +106,54 @@ def main():
     engine_power                          = int    (input('Enter the engine power of the vehicle in kilowatts per hour if it is electric or hybrid (default: 50): ') or 50          )
     production_year                       = int    (input('Enter the production year of the vehicle (default: 2020): '                                             ) or 2020        )
     registration_year                     = int    (input('Enter the year the vehicle will be registered to the Republic of Turkey (default: 2022): '              ) or 2022        )
+    exemption_string                      =        (input('Are you entitled to customs tax exemption (default: yes): '                                             ) or 'yes'       )
 
     vehicle_age                           = registration_year - production_year + 1
-
-    currency_rate                         = forex_python.converter.CurrencyRates().get_rate(currency_code, 'TRY')
-    price_in_lira                         = price * currency_rate
-    price_in_lira_without_vat             = price_in_lira * (float(1) - vat)
-    
-    depreciation_multiplier               = calculate_depreciation_multiplier(vehicle_age)
-    depreciated_price_in_lira_without_vat = depreciation_multiplier * price_in_lira_without_vat
-    
-    special_excise_tax_multiplier         = calculate_special_excise_tax_multiplier(vehicle_type, fuel_type, engine_size, engine_power, depreciated_price_in_lira_without_vat)
-    value_added_tax_multiplier            = calculate_value_added_tax_multiplier   ()
-
-    # TODO
 
     if vehicle_age > 3:
         print('Error: The vehicle can not be imported to the Republic of Turkey because it is older than 3 years.')
         return
 
-    # TODO
-    # print('Origin Country VAT                    : ' + str(vat              ))
-    # print('Price                                 : ' + str(price            ))
-    # print('Price without VAT                     : ' + str(price_without_vat))
-    # print('Production year                       : ' + str(production_year  ))
-    # print('Registration year (to Turkish customs): ' + str(registration_year))
-    # print('Depreciation due to vehicle age       : ' + str(depreciation     ))
-    # print('Depreciated price                     : ' + str(depreciated_price))
+    currency_rate                         = forex_python.converter.CurrencyRates().get_rate(currency_code, 'TRY')
+    price_without_vat                     = price * (float(1) - vat)
+    price_without_vat_in_lira             = price_without_vat * currency_rate
+
+    depreciation_multiplier               = calculate_depreciation_multiplier      (vehicle_age)
+    depreciated_price_without_vat_in_lira = depreciation_multiplier * price_without_vat_in_lira
+
+    customs_tax_multiplier                = calculate_customs_tax_multiplier       (exemption_string)
+    customs_tax                           = customs_tax_multiplier * depreciated_price_without_vat_in_lira
+    price_with_customs_tax                = customs_tax + depreciated_price_without_vat_in_lira
+
+    special_excise_tax_multiplier         = calculate_special_excise_tax_multiplier(vehicle_type, fuel_type, engine_size, engine_power, depreciated_price_without_vat_in_lira)
+    special_excise_tax                    = special_excise_tax_multiplier * price_with_customs_tax
+    price_with_special_excise_tax         = special_excise_tax + price_with_customs_tax
+
+    value_added_tax_multiplier            = calculate_value_added_tax_multiplier   ()
+    value_added_tax                       = value_added_tax_multiplier * price_with_special_excise_tax
+    final_price                           = value_added_tax + price_with_special_excise_tax
+
+    total_tax                             = final_price - depreciated_price_without_vat_in_lira
+
+    print ('####################################################################################################')
+    print (currency_code + '/TRY currency rate                 : ' + str(currency_rate))
+    print ('Origin country VAT percentage         : ' + str(vat                                   * 100          ) + ' %')
+    print ('Price                                 : ' + str(price                                                ) + ' ' + currency_code + ' (' + str(price * currency_rate                ) + ' TRY)')
+    print ('Price without VAT                     : ' + str(price_without_vat                                    ) + ' ' + currency_code + ' (' + str(price_without_vat_in_lira            ) + ' TRY)')
+    print ('Vehicle age                           : ' + str(vehicle_age                                          ))
+    print ('Depreciation multiplier               : ' + str(depreciation_multiplier               * 100          ) + ' %')
+    print ('Depreciated price                     : ' + str(depreciated_price_without_vat_in_lira / currency_rate) + ' ' + currency_code + ' (' + str(depreciated_price_without_vat_in_lira) + ' TRY)')
+    print ('Customs tax multiplier                : ' + str(customs_tax_multiplier                * 100          ) + ' %')
+    print ('Customs tax                           : ' + str(customs_tax                           / currency_rate) + ' ' + currency_code + ' (' + str(customs_tax                          ) + ' TRY)')
+    print ('Price with customs tax                : ' + str(price_with_customs_tax                / currency_rate) + ' ' + currency_code + ' (' + str(price_with_customs_tax               ) + ' TRY)')
+    print ('Special excise tax (OTV) multiplier   : ' + str(special_excise_tax_multiplier         * 100          ) + ' %')
+    print ('Special excise tax                    : ' + str(special_excise_tax                    / currency_rate) + ' ' + currency_code + ' (' + str(special_excise_tax                   ) + ' TRY)')
+    print ('Price with special excise tax         : ' + str(price_with_special_excise_tax         / currency_rate) + ' ' + currency_code + ' (' + str(price_with_special_excise_tax        ) + ' TRY)')
+    print ('Value added tax (VAT) multiplier      : ' + str(value_added_tax_multiplier            * 100          ) + ' %')
+    print ('Value added tax                       : ' + str(value_added_tax                       / currency_rate) + ' ' + currency_code + ' (' + str(value_added_tax                      ) + ' TRY)')
+    print ('Final price                           : ' + str(final_price                           / currency_rate) + ' ' + currency_code + ' (' + str(final_price                          ) + ' TRY)')
+    print ('Total tax to be paid                  : ' + str(total_tax                             / currency_rate) + ' ' + currency_code + ' (' + str(total_tax                            ) + ' TRY)')
+    print ('####################################################################################################')
 
 if __name__ == '__main__':
     main()
